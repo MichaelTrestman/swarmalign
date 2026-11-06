@@ -1,0 +1,6 @@
+.env
+__pycache__/
+.venv/
+venv/
+tmp-scripts/
+swarmalign/results/

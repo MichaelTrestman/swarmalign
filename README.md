@@ -1,26 +1,39 @@
-# ConflictScope
-This repository contains code and data associated with [Generative Value Conflicts Reveal LLM Priorities](https://www.arxiv.org/abs/2509.25369). It can also be used to run the ConflictScope evaluation pipeline over custom value sets and models. 
+# SwarmAlign
 
-## Setup
-```
-conda create -n conflictscope python=3.12
-conda activate conflictscope
-pip install -r requirements.txt
-conda env config vars set OPENAI_API_KEY=<>
-conda env config vars set ANTHROPIC_API_KEY=<>
-```
-[vLLM](https://github.com/vllm-project/vllm) is used for open-weight model inference; adding new models or inference libraries can be done by modifying `src/model_wrappers.py`.
+SwarmAlign measures how far apart the goals of a set of AI agents are, before those agents ever work together. It is a hackathon project built on [ConflictScope](https://github.com/andyjliu/conflictscope).
 
-## Evaluation
-The general evaluation flow is:
-1. Generate data by calling   src/generate_scenarios.py   and   src/filter_scenarios.py (example scripts for doing so are in the scripts repository),
-2. Evaluate models, either using multiple-choice or simulated-user evaluation, by calling `src/evaluate_models.py`,
-3. Use `src/analyze_experiment.py` to generate dataset statistics and model rankings from the evaluation results.
+**Status:** planning. No new code exists yet and nothing has been run, so there are no results to report. Submission is due Sun Nov 8, 2026, 11:59 PM AoE.
 
-To run on custom value sets, you can define your own value sets at `value_sets/[VALUE_SET_NAME].json` and pass the value set name into all scripts.
+The full implementation plan is in [docs/PLAN.md](docs/PLAN.md).
 
-## Citation
-Please cite our paper if you use ConflictScope in your own work:
+## What it will do
+
+Given N configured agents and one shared set of ConflictScope scenarios, the tool will report:
+
+- the N x N matrix of pairwise goal distances
+- each agent's divergence from the other N-1 agents taken as a whole
+- the group's overall dispersion
+
+All three come with paired bootstrap intervals. Five validation gates (G1 to G5 in the plan) test whether the numbers can be trusted.
+
+## Why
+
+Alignment is often discussed as if it were a well defined, measurable relationship between two parties, and as if all humans were approximately aligned with each other. Both assumptions are dubious. Alignment differs between humans, organizations, and AIs, and it can change over time. An agent's alignment is also not identical to that of any of its component models.
+
+Conceptually, misalignment is something like a measure of distance between two vectors in relative goal strength space. Before we can solve "the alignment problem for AI," we need to be able to assay different agents' vectors and measure the distance. SwarmAlign will attempt that measurement for configured AI agents.
+
+These numbers are meant to be the predictor for a later experiment: do swarms of agents whose goals are far apart, measured before the swarm runs, do worse or cost more on tasks with ground truth? That experiment is out of scope here.
+
+The full motivation and source quotes are in [docs/why.md](docs/why.md).
+
+## Prior work and new work
+
+Everything through commit `86a2aa2` is ConflictScope, by Andy Liu and coauthors: `src/`, `scripts/`, `data/`, `value_sets/`, `requirements.txt`, and `LICENSE`. New work is `docs/`, this README, and `.gitignore`. The upstream README is at [README.conflictscope.md](README.conflictscope.md).
+
+## Credit and license
+
+SwarmAlign is built on ConflictScope, from [Generative Value Conflicts Reveal LLM Priorities](https://www.arxiv.org/abs/2509.25369). ConflictScope is MIT licensed, and its [LICENSE](LICENSE) is retained here.
+
 ```
 @article{liu2025generative,
   title={Generative Value Conflicts Reveal LLM Priorities},
