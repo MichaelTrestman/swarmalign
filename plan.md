@@ -155,7 +155,25 @@ With `--subsets-of-size K` it also writes one group row for every K subset of th
 
 ## 8. Validation gates
 
-`validate.py` reads saved cleaned choices and writes `swarmalign/results/validation/gates.csv` (gate, quantity, value, threshold, pass) and figures as PNG and SVG. Thresholds are proposals, kept as named constants at the top of the file. Report failures as they are and do not tune the metric to pass a gate.
+**What the gates are.** The gates test whether the tool's numbers mean anything. The tool will print a distance between any two agents even if it is measuring pure noise, so a number on its own proves nothing. Think of the tool as a new bathroom scale:
+
+| Gate | Bathroom scale version | What it rules out |
+| --- | --- | --- |
+| G1 | It shows a number when you step on it. | The pipeline does not run, or answers cannot be read. |
+| G2 | You step on it twice and get about the same weight. | The score is mostly noise. |
+| G3 | A child and an adult get different readings, and the gap is bigger than the scale's wobble. | The tool cannot separate real differences from noise. |
+| G4 | Five similar adults and one child: it shows the child as the different one. | The tool is not measuring the agent's values. |
+| G5 | Add 1 kg, then 5, then 10, and the reading rises in that order. | The tool is not measuring the agent's values. |
+
+G4 and G5 are the strongest tests, because the team creates the right answer and checks that the tool finds it. That is the evidence that the score is a usable predictor for the later experiment.
+
+**New work, not ConflictScope.** ConflictScope provides the scenarios and value definitions, the run that records each A or B choice (`src/evaluate_models.py`), and the Bradley-Terry fit with bootstrap error bars (`src/analyze_experiment.py`). Comparing agents with each other, all five gates, and the agent configs and steering prompts are new. G1 is a smoke test command. G2 to G5 need `validate.py`, and the 8 validation agents account for 1,600 of the 4,800 scenario runs.
+
+**Pass marks.** The pass marks below are reasonable starting guesses, not established standards. Keep each one as a labeled line at the top of `validate.py`, such as `G2_MIN_R = 0.8`, so it can be changed in one place. The team sets them before the full run, and any later change is reported alongside the original number.
+
+**If a gate fails.** Report the measured value and the failure. Do not change the distance formula, drop agents, or otherwise rework the method until the gate passes.
+
+**Output.** `validate.py` reads saved cleaned choices and writes `swarmalign/results/validation/gates.csv` (gate, quantity, value, threshold, pass) and figures as PNG and SVG.
 
 | Gate | Computation | Pass criterion |
 | --- | --- | --- |
