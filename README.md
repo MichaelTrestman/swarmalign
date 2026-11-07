@@ -1,20 +1,17 @@
 # SwarmAlign
 
-SwarmAlign measures how far apart the goals of a set of AI agents are, before those agents ever work together. It is a hackathon project built on [ConflictScope](https://github.com/andyjliu/conflictscope).
+SwarmAlign measures the degree of value misalignment between pairs of AI agents.
 
-**Status:** planning. No new code exists yet and nothing has been run, so there are no results to report. Submission is due Sun Nov 8, 2026, 11:59 PM AoE.
+It is a hackathon project built on [ConflictScope](https://github.com/andyjliu/conflictscope).
 
-The full implementation plan is in [docs/PLAN.md](docs/PLAN.md).
+Given N agents to compose a swarm, the tool will report:
 
-## What it will do
-
-Given N configured agents and one shared set of ConflictScope scenarios, the tool will report:
-
-- the N x N matrix of pairwise goal distances
-- each agent's divergence from the other N-1 agents taken as a whole
+- the N x N matrix of pairwise value misalignment
+- each agent's divergence from the aggregate value vector of the other N-1 agents
 - the group's overall dispersion
 
-All three come with paired bootstrap intervals. Five validation gates (G1 to G5 in the plan) test whether the numbers can be trusted.
+
+See [implementation plan](plan.md).
 
 ## Why
 
@@ -28,7 +25,7 @@ The full motivation and source quotes are in [docs/why.md](docs/why.md).
 
 ## Prior work and new work
 
-Everything through commit `86a2aa2` is ConflictScope, by Andy Liu and coauthors: `src/`, `scripts/`, `data/`, `value_sets/`, `requirements.txt`, and `LICENSE`. New work is `docs/`, this README, and `.gitignore`. The upstream README is at [README.conflictscope.md](README.conflictscope.md).
+Everything through commit `86a2aa2` is ConflictScope, by Andy Liu and coauthors: `src/`, `scripts/`, `data/`, `value_sets/`, `requirements.txt`, and `LICENSE`. New work is `docs/`, `plan.md`, this README, and `.gitignore`. The upstream README is at [README.conflictscope.md](README.conflictscope.md).
 
 ## Credit and license
 
