@@ -1,6 +1,27 @@
 # SwarmAlign: What We Built and What It Showed
 
-The group goal-distance tool from `plan.md` now exists, passes 15 offline tests, and runs end to end with no API calls. Running it surfaced two findings that change what the team should do before Sunday's spend: the assay looks underpowered at 400 scenarios, and gate G4 cannot pass as currently written.
+The group goal-distance tool from `plan.md` now exists and passes 15 offline tests. It has been exercised only on synthetic agents — no language model has been called — and on that basis two findings bear on what the team should decide before Sunday's spend: the assay looks underpowered at 400 scenarios, and gate G4 cannot pass as currently written.
+
+## What has not been done
+
+**No language model has been called. Not once.** Every number in this document comes from synthetic agents.
+
+- **The six "agents" are invented.** `synth.py` assigns each one eight numbers, then simulates every answer by drawing from `sigmoid(theta_a - theta_b)`. No API calls, no models, no network.
+- **The test data is generated from exactly the model the fit assumes.** Passing means the arithmetic recovers what was planted. It does not show that real agents behave this way. Nothing here validates the Bradley-Terry assumption itself.
+- **The noise-floor figures are a best case.** They measure how much a fitted vector wobbles given N binary choices from a perfectly well-behaved agent. Real models are noisier — inconsistent at temperature 0, letter-biased, occasionally unparseable — so the real floor will be at least this large and probably larger.
+- **The G4 finding is robust in the same direction.** If intervals are already too wide to clear each other with ideal data, real data will not narrow them. "G4 cannot pass at 400 scenarios" holds a fortiori.
+
+Still to build before any real agent is measured, all from `plan.md` section 6:
+
+| Missing | What it does |
+| --- | --- |
+| `run_assay.py` | Drives ConflictScope's `evaluate_models.py` for one agent |
+| `clean.py` | Turns raw output into the tidy choices this tool reads |
+| The three `src/` edits (section 5) | Including the unseeded A/B swap fix |
+| `agents/`, `prompts/`, `scenarios_subset.json` | The configs defining who is measured on what |
+| Working OpenRouter credentials | Nobody has confirmed these are in hand |
+
+So: the measurement half is built and tested. The data-collection half does not exist yet.
 
 ## What this is
 

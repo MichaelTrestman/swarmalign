@@ -2,7 +2,20 @@
 
 SwarmAlign builds a measuring instrument and a calibration suite for it, not a study of swarms. This note sets out how the measurement works, what each validation gate establishes, and — the part that decides what the write-up may say — which claims are licensed under each possible outcome.
 
-Written for the team. It assumes no background in psychometrics, and defines every term in `plan.md` that the plan itself uses without definition.
+Written for the team. It assumes no background in psychometrics, and defines every term in `plan.md` that the plan itself uses without definition. The measured figures it quotes come from synthetic agents only; see the next section.
+
+## What has not been done
+
+**No language model has been called.** The measured figures quoted below — the noise floor, and the G4 interval widths — come from synthetic agents, not from any real run.
+
+`synth.py` assigns each synthetic agent eight numbers and simulates every answer by drawing from `sigmoid(theta_a - theta_b)`. That is deliberate: with real agents there is no ground truth to check recovery against, so a planted difference is the only way to ask whether the instrument finds what is there. It is also circular in a way that has to be stated — the test data is generated from exactly the Bradley-Terry model the fit assumes, so recovery tests the arithmetic, not the modelling assumption.
+
+Two consequences for how the measured figures should be read:
+
+- **The noise floor is a best case.** It reflects a perfectly well-behaved agent. Real models are noisier, so the real floor will be at least this large.
+- **The G4 result is robust in direction.** Intervals too wide to clear each other under ideal data will not narrow under real data.
+
+Nothing in `plan.md` section 6 that touches a model has been built: `run_assay.py`, `clean.py`, the three `src/` edits from section 5, the agent and prompt configs, and the scenario subset. Credentials are unconfirmed.
 
 ## Scope
 
