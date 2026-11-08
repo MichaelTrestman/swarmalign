@@ -1,0 +1,6 @@
+# SwarmAlign additions on top of the upstream ConflictScope pins.
+# vLLM is deliberately omitted: plan.md forbids routing to local vLLM.
+choix>=0.3.5
+numpy>=1.24
+pandas>=2.0
+pytest>=7.0
