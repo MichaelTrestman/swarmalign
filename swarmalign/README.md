@@ -1,6 +1,6 @@
 # SwarmAlign: What We Built and What It Showed
 
-The group goal-distance tool from `plan.md` now exists and passes 15 offline tests. It has been exercised only on synthetic agents — no language model has been called — and on that basis two findings bear on what the team should decide before Sunday's spend: the assay looks underpowered at 400 scenarios, and gate G4 cannot pass as currently written.
+The group goal-distance tool from `plan.md` now exists and passes 15 offline tests. It has been exercised only on synthetic agents — no language model has been called — and on that basis two findings bear on what the team should decide before committing the API budget: the assay looks underpowered at 400 scenarios, and gate G4 cannot pass as currently written.
 
 ## What has not been done
 
@@ -29,7 +29,7 @@ A program that takes the answers several AI agents gave to the same set of dilem
 
 That is the main deliverable named in `plan.md`. It now exists, it has 15 passing tests, and it runs end to end without touching the network or spending anything.
 
-It was the right piece to build first because it has no external dependencies. No API keys, no spending decision, nobody else awake. Everything else in the plan waits on credentials or on a team call; this did not.
+It was the right piece to build first because it has no external dependencies: no API keys, no spending decision, no coordination. Everything else in the plan waits on credentials or on a team decision; this did not.
 
 ## How it works, in four steps
 
@@ -41,7 +41,7 @@ It was the right piece to build first because it has no external dependencies. N
 
 **4. Check that the number means anything.** Split one agent's dilemmas in half, build a profile from each half, and measure the distance between that agent and itself. That is the noise floor: pure measurement error. Any real difference has to beat it.
 
-The tool computes everything a second way as well, by counting how often two agents simply answered differently — no model at all. When both readings agree, no conclusion rests on believing Bradley-Terry. When they diverge, the fit is load-bearing and that needs saying.
+The tool computes everything a second way as well, by counting how often two agents simply answered differently — no statistical model at all, just arithmetic on the choices. When both readings agree, no conclusion rests on believing Bradley-Terry. When they diverge, the fit is load-bearing and that needs saying.
 
 ## How to run it
 
@@ -81,11 +81,11 @@ On real data, point `--choices-dir` at the cleaned per-agent choice CSVs instead
 
 The test group was six synthetic agents: five near-copies of each other plus one deliberately different agent hidden among them. That is exactly the shape gate G4 is built to catch.
 
-**The machinery works.** The planted outlier came out ranked first on every measure, on both the model-based reading and the plain-counting reading.
+**The machinery works.** The planted outlier came out ranked first on every measure, on both the Bradley-Terry reading and the plain-counting reading.
 
 ### Finding 1: 400 scenarios is probably not enough
 
-Two identical agents measure roughly 0.7 to 1.2 apart from noise alone. In the six-agent run, **8 of the 15 pairs sat closer together than an agent sits to itself**. Those pairs are indistinguishable; the tool is reporting measurement error with a confident number attached.
+Two identical agents, each fitted on all 400 scenarios, come out about **0.71** apart from estimation noise alone. The split-half figure is larger — about **1.2** — because each half is fitted on only 200 scenarios, so it carries more noise; that is the number `noise_floor.csv` reports and the one G3 compares against. In the six-agent run, **8 of the 15 pairs sat closer together than an agent sits to itself**. Those pairs are indistinguishable; the tool is reporting measurement error with a confident number attached.
 
 The lever is scenario count:
 
@@ -112,7 +112,7 @@ G4 requires the planted outlier's lower interval bound to sit above every paraph
 
 It fails, and not because the tool missed anything. The outlier ranked first on every point estimate. At 400 scenarios the intervals are simply too wide to clear each other, so the gate is testing the sample size rather than the instrument.
 
-G4 will therefore fail on Sunday however well the tool performs. Either the threshold moves to something the data can support — outlier ranks first on both readings, intervals allowed to overlap — or the scenario count rises substantially. **This has to be decided before the run**, because `plan.md` rightly forbids moving a threshold after seeing the result.
+G4 will therefore fail however well the tool performs. Either the threshold moves to something the data can support — outlier ranks first on both readings, intervals allowed to overlap — or the scenario count rises substantially. **This has to be decided before the run**, because `plan.md` rightly forbids moving a threshold after seeing the result.
 
 ### Finding 3: a cosmetic problem that reads as a bug
 
@@ -126,9 +126,9 @@ The consequence is presentational but real: a judge glancing at that table will 
 
 None of these is a caveat. Each is a decision with a deadline.
 
-1. **The plan's main artifact exists and is tested.** Sunday can start from running code rather than a blank file.
+1. **The plan's main artifact exists and is tested.** Work can start from running code rather than a blank file.
 2. **Measure the noise floor in the smoke test, before committing the budget.** It is the cheapest available check on whether the full run is worth paying for, and it costs about 120 calls.
-3. **Set G4's threshold tonight, not Sunday.** It cannot pass as written, and moving it after the run would invalidate it.
+3. **Set G4's threshold before the run, not after.** It cannot pass as written, and moving it once results are in would invalidate it.
 
 The contribution here is not an opinion about the design. It is a statement about what the numbers can and cannot support, demonstrated by running the thing.
 

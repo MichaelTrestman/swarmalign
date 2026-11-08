@@ -106,7 +106,7 @@ This is the table the write-up should be built from. Three of the five outcomes 
 
 The metrics tool has been run against synthetic agents, and two results bear on the thresholds before any real run:
 
-**The noise floor is large relative to plausible signal at 400 scenarios.** Two identical agents measure roughly 0.7 to 1.2 apart from noise alone. In a six-agent synthetic run, 8 of 15 pairs sat no further apart than an agent sits from itself. The floor falls with scenario count — about 1.44 at 100, 0.71 at 400, 0.45 at 1600.
+**The noise floor is large relative to plausible signal at 400 scenarios.** Two identical agents, each fitted on all 400 scenarios, come out about **0.71** apart from estimation noise alone. The split-half figure is larger — about **1.2** — because each half is fitted on only 200 scenarios, so it carries more noise; that is the number `noise_floor.csv` reports and the one G3 compares against. In a six-agent synthetic run, 8 of 15 pairs sat no further apart than an agent sits from itself. The floor falls with scenario count — about 1.44 at 100, 0.71 at 400, 0.45 at 1600.
 
 The synthetic agents use an arbitrary scale, so this does not establish whether real models differ by more or less than 0.7. That is exactly why it belongs in the smoke test: the first question is not whether the pipeline runs but whether real agents differ by more than measurement error. If they do not, the full run buys nothing, and learning that costs about 120 calls instead of 14,400.
 
