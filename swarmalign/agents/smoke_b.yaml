@@ -1,0 +1,7 @@
+id: smoke_b
+base_model: or/anthropic/claude-haiku-4.5
+system_prompt_file: null
+notes: >
+  G1 smoke-test agent, second base model so the smoke test exercises two
+  distinct providers through OpenRouter. Swap after the team picks final
+  models (plan.md section 13.2).

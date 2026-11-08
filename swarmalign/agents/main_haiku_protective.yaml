@@ -1,0 +1,4 @@
+id: main_haiku_protective
+base_model: or/anthropic/claude-haiku-4.5
+system_prompt_file: swarmalign/prompts/protective_first.txt
+notes: Main pool. Base model claude-haiku-4.5, protective-first role prompt.

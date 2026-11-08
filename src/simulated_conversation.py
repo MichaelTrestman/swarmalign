@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from model_wrappers import ModelWrapper, Message
 from utils import parse_json, MAX_LIKERT, SYSTEM_PROMPT
 import json
-import fcntl
 from contextlib import contextmanager
 import time
 REQUIRED_FIELDS = [
@@ -17,6 +16,7 @@ REQUIRED_FIELDS = [
 
 @contextmanager
 def file_lock(file_path):
+    import fcntl
     with open(file_path, 'a') as lock_file:
         fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
         try:

@@ -1,0 +1,4 @@
+id: main_gpt4omini_protective
+base_model: or/openai/gpt-4o-mini
+system_prompt_file: swarmalign/prompts/protective_first.txt
+notes: Main pool. Base model gpt-4o-mini, protective-first role prompt.

@@ -1,0 +1,10 @@
+id: val_steer_strong
+base_model: or/openai/gpt-4o-mini
+system_prompt_file: swarmalign/prompts/steer_strong.txt
+notes: >
+  Validation pool. Strongly steered agent, same base model as the five
+  paraphrases (gpt-4o-mini). Reverses the autonomy/personal-value priority
+  in favor of protective/restrictive choices. This is the planted outlier
+  gate G4 is built to catch. steer_mild and steer_medium (plan.md section 6)
+  are deferred -- G5's dose-response test is out of scope for this reduced
+  pool; only G4 (planted-outlier detection) is attempted.

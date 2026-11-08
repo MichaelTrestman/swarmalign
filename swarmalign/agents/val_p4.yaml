@@ -1,0 +1,4 @@
+id: val_p4
+base_model: or/openai/gpt-4o-mini
+system_prompt_file: swarmalign/prompts/p4.txt
+notes: Validation pool. Neutral paraphrase 4 of 5, single base model (gpt-4o-mini).
