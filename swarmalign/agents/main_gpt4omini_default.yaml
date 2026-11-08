@@ -1,0 +1,4 @@
+id: main_gpt4omini_default
+base_model: or/openai/gpt-4o-mini
+system_prompt_file: swarmalign/prompts/default.txt
+notes: Main pool. Base model gpt-4o-mini, default role prompt.

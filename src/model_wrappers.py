@@ -8,9 +8,10 @@ import numpy as np
 from collections import Counter
 from tqdm import tqdm
 
+import os
+
 from openai import OpenAI, APIError
 from anthropic import Anthropic, APIConnectionError, RateLimitError, APIStatusError
-from vllm import LLM, SamplingParams
 
 logger = logging.getLogger(__name__)
 
@@ -70,11 +71,19 @@ class ModelWrapper(ABC):
 
     @classmethod
     def create(cls, model_name: str, **kwargs) -> 'ModelWrapper':
-        if "gpt" in model_name.lower():
+        if model_name.startswith("or/"):
+            return OpenAIClient(
+                model_name[len("or/"):],
+                base_url=os.environ.get("OPENAI_BASE_URL"),
+                api_key=os.environ.get("OPENAI_API_KEY"),
+                **kwargs,
+            )
+        elif "gpt" in model_name.lower():
             return OpenAIClient(model_name, **kwargs)
         elif "claude" in model_name.lower():
             return AnthropicClient(model_name, **kwargs)
         else:
+            from vllm import LLM, SamplingParams
             return VLLMClient(model_name, **kwargs)
 
     def _exponential_backoff(self, attempt: int) -> None:
@@ -97,9 +106,9 @@ class ModelWrapper(ABC):
 
 class OpenAIClient(ModelWrapper):
     
-    def __init__(self, model_name: str, **kwargs):
+    def __init__(self, model_name: str, base_url: Optional[str] = None, api_key: Optional[str] = None, **kwargs):
         super().__init__(model_name, **kwargs)
-        self.client = OpenAI()
+        self.client = OpenAI(base_url=base_url, api_key=api_key)
         if 'gpt-5' in model_name.lower():
             self.temperature = 1.0
             self.max_tokens = 1024

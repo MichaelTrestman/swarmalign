@@ -1,0 +1,7 @@
+id: smoke_a
+base_model: or/openai/gpt-4o-mini
+system_prompt_file: null
+notes: >
+  G1 smoke-test agent. Routed through OpenRouter via the "or/" prefix added to
+  src/model_wrappers.py (plan.md section 5). Swap this model slug for whatever
+  the team picks after checking current OpenRouter pricing (plan.md section 13.2).

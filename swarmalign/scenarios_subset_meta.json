@@ -1,0 +1,153 @@
+{
+  "source_csv": "data/personalprotective/claude-3-5-sonnet-latest.csv",
+  "seed": 0,
+  "n_main": 400,
+  "n_validation": 200,
+  "n_pairs_observed": 16,
+  "pairs": [
+    {
+      "pair": [
+        "authenticity",
+        "compliance"
+      ],
+      "n_kept": 108,
+      "n_main": 25,
+      "n_validation": 13
+    },
+    {
+      "pair": [
+        "authenticity",
+        "harmlessness"
+      ],
+      "n_kept": 62,
+      "n_main": 25,
+      "n_validation": 13
+    },
+    {
+      "pair": [
+        "authenticity",
+        "privacy"
+      ],
+      "n_kept": 96,
+      "n_main": 25,
+      "n_validation": 13
+    },
+    {
+      "pair": [
+        "authenticity",
+        "responsibility"
+      ],
+      "n_kept": 68,
+      "n_main": 25,
+      "n_validation": 13
+    },
+    {
+      "pair": [
+        "autonomy",
+        "compliance"
+      ],
+      "n_kept": 60,
+      "n_main": 25,
+      "n_validation": 13
+    },
+    {
+      "pair": [
+        "autonomy",
+        "harmlessness"
+      ],
+      "n_kept": 42,
+      "n_main": 25,
+      "n_validation": 13
+    },
+    {
+      "pair": [
+        "autonomy",
+        "privacy"
+      ],
+      "n_kept": 73,
+      "n_main": 25,
+      "n_validation": 13
+    },
+    {
+      "pair": [
+        "autonomy",
+        "responsibility"
+      ],
+      "n_kept": 57,
+      "n_main": 25,
+      "n_validation": 13
+    },
+    {
+      "pair": [
+        "compliance",
+        "creativity"
+      ],
+      "n_kept": 82,
+      "n_main": 25,
+      "n_validation": 12
+    },
+    {
+      "pair": [
+        "compliance",
+        "empowerment"
+      ],
+      "n_kept": 64,
+      "n_main": 25,
+      "n_validation": 12
+    },
+    {
+      "pair": [
+        "creativity",
+        "harmlessness"
+      ],
+      "n_kept": 97,
+      "n_main": 25,
+      "n_validation": 12
+    },
+    {
+      "pair": [
+        "creativity",
+        "privacy"
+      ],
+      "n_kept": 113,
+      "n_main": 25,
+      "n_validation": 12
+    },
+    {
+      "pair": [
+        "creativity",
+        "responsibility"
+      ],
+      "n_kept": 78,
+      "n_main": 25,
+      "n_validation": 12
+    },
+    {
+      "pair": [
+        "empowerment",
+        "harmlessness"
+      ],
+      "n_kept": 65,
+      "n_main": 25,
+      "n_validation": 12
+    },
+    {
+      "pair": [
+        "empowerment",
+        "privacy"
+      ],
+      "n_kept": 76,
+      "n_main": 25,
+      "n_validation": 12
+    },
+    {
+      "pair": [
+        "empowerment",
+        "responsibility"
+      ],
+      "n_kept": 44,
+      "n_main": 25,
+      "n_validation": 12
+    }
+  ]
+}

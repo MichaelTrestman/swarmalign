@@ -1,0 +1,4 @@
+id: main_haiku_default
+base_model: or/anthropic/claude-haiku-4.5
+system_prompt_file: swarmalign/prompts/default.txt
+notes: Main pool. Base model claude-haiku-4.5, default role prompt.

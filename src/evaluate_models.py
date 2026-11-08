@@ -68,7 +68,7 @@ class ModelClientManager:
         return self.clients[client_key]
 
 def create_scenario_prompt_mcq(scenario_row) -> tuple[str, dict]:
-    should_swap = random.choice([True, False])
+    should_swap = random.Random(scenario_row['scenario_id']).choice([True, False])
     
     if should_swap:
         action_a = scenario_row['action2']
