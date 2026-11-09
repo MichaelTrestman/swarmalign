@@ -32,6 +32,7 @@ Use ConflictScope's multiple choice mode as the only assay. Each agent reads a s
 **Limitations:**
 
 - **The assay is visibly a test.** An agent can tell it is being assessed.
+- **It measures stated preference, not behavior.** The prompt asks what "an agent" should do, and scores may not match how agents act. EigenBench found surveyed rankings "exactly opposite" revealed ones on one trait, and ConflictScope reports models shift toward personal values in open ended settings. The write-up must describe the score as stated preference.
 
 
 ## 3. Constraints
@@ -99,7 +100,7 @@ New code goes in `swarmalign/`:
    - Run one process per agent, since calls within a process are sequential.
    - Include `.csv` in `--output-name`.
    - Support `--dry-run` (prints call count and token estimate, no API calls) and `--max-calls`.
-5. **Smoke test (gate G1).** 2 agents x 20 scenarios.
+5. **Smoke test (gate G1).** 2 agents x 20 scenarios. Also check whether the chosen models return logprobs through OpenRouter, which decides whether soft disagreement (section 12) is possible.
 6. **Cost check.** Use tokens and cost measured in the smoke test to project the full run. The team agrees a spend before step 9.
 7. **`clean.py`.** Keep only rows with choice A or B. Write columns agent_id, scenario_id, value1, value2, chose_value (the value name chosen). Log the drop rate per agent.
 8. **`group_metrics.py`.** Per section 7. Take the 8 value index from `value_sets/personalprotective.json`, not from the observed data. This step is offline, so it can run alongside steps 3 to 6.
@@ -129,6 +130,8 @@ New code goes in `swarmalign/`:
 | Dispersion (vector) | Mean of d_ij over all pairs i < j. |
 | Dispersion (item) | Mean of D_ij over all pairs i < j. |
 | Leave one out drop L_i | Dispersion of all N agents minus dispersion of the N-1 others (vector reading, also report item reading). N must be at least 3. |
+| Agreement welfare W_α | Let u_ij = 1 - D_ij for each pair i < j, and n the number of pairs. W_α = ((1/n) Σ u_ij^(1-α))^(1/(1-α)), with the geometric mean at α = 1. W_0 is the plain mean, which equals 1 - dispersion (item). W_∞ is the minimum u_ij, the worst pair. Report α = 0, 1, and ∞. Adapted from the welfare family in section 4.3 of [A Roadmap to Pluralistic Alignment](https://arxiv.org/abs/2402.05070). |
+| Shuffled disagreement S_ij | Within each value pair, independently shuffle each agent's choices across scenarios, recompute D_ij, and take the mean over 100 shuffles. This is the disagreement expected from each agent's overall value preferences alone. D_ij minus S_ij shows how much comes from differing on specific scenarios. Adapted from Appendix B of the same paper. |
 
 **Intervals: paired, stratified bootstrap.** One replicate resamples scenario ids with replacement, within each value pair so every value stays represented, and applies the same resampled ids to every agent. It then refits all agents and recomputes every quantity above. Use B = 1,000 replicates by default (`--boot`), a fixed seed (`--seed`), and 2.5th and 97.5th percentiles. If a refit fails, skip the replicate and report the skip count. Save the replicate draws of every theta_i and every choice level statistic (`boot_draws.npz`) so intervals for any subset of agents can be computed later without refitting.
 
@@ -147,9 +150,9 @@ With `--subsets-of-size K` it also writes one group row for every K subset of th
 **Outputs** (all CSV, one header row, intervals as `_lo` and `_hi` columns). Keep these columns stable, since the later experiment reads `group.csv` and `agent_vs_rest.csv`.
 
 - `agent_vectors.csv`: agent_id, value, score, score_lo, score_hi, n_comparisons
-- `pairwise.csv`: agent_i, agent_j, goal_distance, goal_distance_lo, goal_distance_hi, item_disagreement, item_disagreement_lo, item_disagreement_hi
+- `pairwise.csv`: agent_i, agent_j, goal_distance, goal_distance_lo, goal_distance_hi, item_disagreement, item_disagreement_lo, item_disagreement_hi, shuffled_disagreement
 - `agent_vs_rest.csv`: agent_id, group_id, divergence_vector, divergence_vector_lo, divergence_vector_hi, divergence_item, divergence_item_lo, divergence_item_hi, loo_drop_vector, loo_drop_lo, loo_drop_hi
-- `group.csv`: group_id (the sorted agent ids joined with +), n_agents, dispersion_vector, dispersion_vector_lo, dispersion_vector_hi, dispersion_item, dispersion_item_lo, dispersion_item_hi
+- `group.csv`: group_id (the sorted agent ids joined with +), n_agents, dispersion_vector, dispersion_vector_lo, dispersion_vector_hi, dispersion_item, dispersion_item_lo, dispersion_item_hi, welfare_a0, welfare_a0_lo, welfare_a0_hi, welfare_a1, welfare_a1_lo, welfare_a1_hi, welfare_min, welfare_min_lo, welfare_min_hi
 - `noise_floor.csv`: agent_id, split_half_distance_median, split_half_distance_p95
 - `meta.json`: agent ids, base model ids, prompt file hashes, date, scenario subset hash, B, seed, skipped replicates, per agent drop rates
 
@@ -195,6 +198,8 @@ G4 and G5 are the strongest tests, because the team creates the right answer and
 - A given scenario gets the same A/B order for every agent.
 - The single agent vector from `group_metrics.py` equals the vector from `fit_bradley_terry_model` on the same cleaned data, after centering.
 - d_ii = 0, d_ij = d_ji, for N = 2 Q_1 equals D_12, and the same seed gives identical output.
+- W_0 equals 1 - dispersion (item), W_∞ equals the smallest pairwise agreement, and W_1 handles a pair with zero agreement without error.
+- Shuffling keeps each agent's win counts within every value pair, and two agents with identical overall preferences but independent scenario choices have D_ij near S_ij.
 - Edge cases: N = 2, N = 3 (document that Q_i is coarse for N = 3), and an agent with a value that never appears.
 
 **Conventions.**
@@ -220,12 +225,14 @@ Models are the cheapest available on OpenRouter, using paid models because free 
 - **Reasoning models are a poor fit.** With a 5 token limit they may return no content, which triggers an uncaught error at `src/model_wrappers.py:119-120` and marks the chunk ERROR. Models with "gpt-5" in the name are also forced to temperature 1.0 and 1,024 tokens (`:103-105`).
 - **Answers can still vary at temperature 0,** especially if OpenRouter serves a model from different providers. Pin providers if the smoke test shows drift.
 - **OpenRouter compatibility is unconfirmed.** The client sends `max_completion_tokens` and `top_p`. The smoke test should confirm both work for the chosen models.
+- **Values may not share one scale.** Euclidean distance over 8 equally weighted values and the welfare family both assume values can be compared directly. The README should state this.
 
 ## 12. Deferred
 
 - **Interactive mode.** A simulated user message, a normal reply, and an LLM judge. It measures behavior but needs a judge, and it runs at temperature 1.0 regardless of the flag (`src/evaluate_models.py:390-393`).
 - **Multiple choice with explanation.** Needs a small custom runner, because the prompt is hardcoded and reply text is discarded.
 - **More than two options.** The shipped scenarios have exactly two actions, so this needs new scenario generation.
+- **Soft disagreement.** Jensen-Shannon distance per scenario on each agent's A/B probabilities, averaged across scenarios, adapted from section 3.3 of [A Roadmap to Pluralistic Alignment](https://arxiv.org/abs/2402.05070). It needs code changes, since the multiple choice path does not call `batch_generate_with_probs`, and models that return logprobs. The gain may be small if models put nearly all probability on one answer.
 
 ## 13. Decisions for the team
 
@@ -234,3 +241,12 @@ Models are the cheapest available on OpenRouter, using paid models because free 
 3. What is the spending limit, once the smoke test gives a measured cost?
 4. Run each scenario in both A/B orders? This doubles a cheap run and measures letter bias directly.
 5. Keep all 16 agents, or reduce the count if time runs short?
+
+## 14. Related work
+
+Full notes and sources are in [docs/lit-search.md](docs/lit-search.md).
+
+- **Novelty.** A limited search found no prior work that uses pre-interaction value distance between agents to predict multi-agent task performance. Claim only that: "we did not find it." One close paper, on value similarity and trust between agent pairs, could not be read and should be checked before any novelty claim.
+- **Sources of method.** ConflictScope provides the assay and single agent scores. [A Roadmap to Pluralistic Alignment](https://arxiv.org/abs/2402.05070) provides the welfare family and shuffle baseline. The pairwise and group metrics, the gates, and the link to swarm performance are new here.
+- **Nearby work.** CIVA and ValueFlow study values in multi-agent systems, with community collapse and value drift as outcomes, not task performance. EigenBench ranks models against a constitution, and its planted persona sweep is a precedent for G4 and G5.
+- **Later experiment.** Results on team diversity are mixed, so it should test for an effect in either direction, and by task type.
