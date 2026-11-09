@@ -48,13 +48,13 @@ Note that the pluralistic alignment literature does generally mind the gap betwe
 
 Pluralistic alignment is cross sectional: it concerns differences between people at a given time. A separate strand of work concerns differences within one person over time. Each user's preferences and needs shift over time and between contexts, even while some remain constant (Pettigrew, 2019), and an AI system can itself shift the preferences it is meant to serve (Carroll et al., 2022, 2024). Preferences may also be the wrong building block for values in the first place (Zhi-Xuan et al., 2024). In other words, the same user might have a different alignment<sub>O</sub> with a given product at different times; "what the user wants" is not fixed enough to serve as a single target.
 
-A person's values, goals, and preferences can shift over time too, with some being stable over over the course of a whole lifetime, and others shifting on a whim. Being flexible and adaptable means being able to focus on what you can productively do in a given scenario, and deprioritizing goals that would be futile or which conflict with others that are currently salient. We can therefore even assess alignment<sub>I</sub> between a given agent at two different points in time or in two different contexts.
+A person's values, goals, and preferences can shift over time too, with some being stable over the course of a whole lifetime, and others shifting on a whim. Being flexible and adaptable means being able to focus on what you can productively do in a given scenario, and deprioritizing goals that would be futile or which conflict with others that are currently salient. We can therefore even assess alignment<sub>I</sub> between a given agent at two different points in time or in two different contexts.
 
 In AI products, adaptability to a user's values is called 'steerability' (Sorensen et al., 2024, §3.2), the idea being that a steerable AI product adapts to be well aligned with users over the course of a session. With AI products, steerability can be double-edged; we generally want AI to be steerable only in certain directions, i.e. to adapt only to certain values but not others. How do we allow it to adapt to some values (like an aversion to cat memes), but not others (a desire to self-harm)? Further, steerability also shares a border with *duplicity*: essentially by being too flexible, a product might be misleading, since a user might expect it to be more stable. Assessment gaming can be conceived of as a kind of steerability: it is adaptation to the expectation that rule-following is important to judgments in some situations (where the judge can tell if you cheat), but not others (when no one is checking). That steerability and duplicity are two sides of the same coin seems to follow from [Goodhart's Law](https://en.wikipedia.org/wiki/Goodhart%27s_law).
 
 The framework proposed here provides a unifying measure for steerability and interagent differences in alignment: the length of the difference vector between two points in value space, whether they belong to two agents at one time or to one at two times.
 
-One further point is that talk about alignment is rather incoherent because it fails to distinguish a model in a training context from an agent: a collection of software, data access, tools, and inference of one or more types. In most modern AI products, a given agent has access to more than one models, and often the code chooses which model to call. As well, most models are used in many different agent applications. Much research focuses on LLM models, with the agentic code layer that makes up much of the product abstracted away for convenience. Our approach is to focus on the agent as the unit of analysis, since it was actually behaves.
+One further point is that talk about alignment is rather incoherent because it fails to distinguish a model in a training context from an agent: a collection of software, data access, tools, and inference of one or more types. In most modern AI products, a given agent has access to more than one model, and often the code chooses which model to call. As well, most models are used in many different agent applications. Much research focuses on LLM models, with the agentic code layer that makes up much of the product abstracted away for convenience. Our approach is to focus on the agent as the unit of analysis, since it is what actually behaves.
 
 If you can’t estimate a point in value space precisely and efficiently for an arbitrary individual, human or AI, how could you possibly know you’ve solved the alignment problem? These need to be expressed in the same framework. Before we can solve “the alignment problem for AI,” we need to be able to locate different agents in value space and measure the difference between them.
 
@@ -62,9 +62,9 @@ If you can’t estimate a point in value space precisely and efficiently for an 
 
 Our main contributions are:
 
-- **A conceptual distinction.** We separate outcome-judgment alignment (alignment<sub>O</sub>), a judge's verdict on what an agent produces, from intersubjective alignment (alignment<sub>I</sub>), agreement between the values of two parties, and show why one cannot stand in for the other in systems of many agents.
-- **A measurement framework.** We treat alignment<sub>I</sub> as a difference vector between latent value states, estimated through an instrument whose output lives in a measurement space, and identify three such spaces in a forced choice assay.
-- **An open instrument and a first validation.** SwarmAlign measures pairwise, agent versus rest, and group alignment<sub>I</sub> among configured LLM agents, with paired bootstrap intervals and a split half noise floor. On real models it recovers a single steering prompt on one base model by a wide margin (G4), while organic differences across two base models and two prompts stay within instrument noise at 400 scenarios (G3).
+- **A distinction.** Outcome-judgment alignment (alignment<sub>O</sub>), a judge's verdict on an output, versus intersubjective alignment (alignment<sub>I</sub>), agreement between two parties' values, and why one cannot stand in for the other in systems of many agents.
+- **A measurement framework.** Alignment<sub>I</sub> as a difference vector between latent value states, estimated through instruments whose outputs live in distinct measurement spaces.
+- **An open instrument and a first validation.** SwarmAlign measures pairwise, agent versus rest, and group alignment<sub>I</sub> among LLM agents. On real models it recovers a single steering prompt by a wide margin (G4), while organic differences between agents stay within instrument noise at 400 scenarios (G3).
 
 ## 2. Related Work
 
@@ -72,7 +72,7 @@ Our main contributions are:
 
 **Values in multi agent systems.** CIVA (Zhang et al., 2026) varies how prevalent human values are in a community of LLM agents and reports collective failures, such as collapse, when values are misspecified. ValueFlow (Liu, Liu, & Shen, 2026) measures how a value perturbation introduced at one agent propagates through a network of agents. Both treat values as an input or an outcome of multi agent dynamics; neither measures value distance between agents before they interact.
 
-**Pluralism and preference change.** Section 1 discusses pluralistic alignment (Sorensen et al., 2024; Kirk et al., 2024a, 2024b) and work on preferences that change over time or are shaped by the system serving them (Pettigrew, 2019; Carroll et al., 2022, 2024; Zhi-Xuan et al., 2024). That work concerns alignment between AI systems and the people they serve; our focus is alignment between agents.
+**Pluralism and preference change.** The work discussed in section 1 concerns alignment between AI systems and the people they serve; our focus is alignment between agents.
 
 **Novelty.** A limited search (seven queries, three papers read closely) found no prior work that measures value distance between agents before they interact and uses it to predict how a team of agents performs.
 
@@ -94,14 +94,8 @@ Section 1 treats alignment<sub>I</sub> as a relation between the values of two p
 
 Each step down discards information. Two agents can share a point in choice rate space or value space and still be far apart in answer space, for instance by choosing the same values at the same rates but in opposite scenarios. Which space distances are measured in is therefore part of what alignment<sub>I</sub> is taken to mean: disagreement about particular situations, or difference in general priorities.
 
-**What the tool reports.** The lengths of difference vectors, not their directions: pairwise distances (`goal_distance_matrix`), each agent's distance from the centroid of the others' positions (R_i), and the group's mean pairwise distance (dispersion). The directions are recoverable from each agent's fitted position, written to `agent_vectors.csv` by `swarmalign/group_metrics.py`, but no output column reports them.
-
-**Inference is uncertain.** Every reported number is an estimate of a latent quantity through one instrument. The split half noise floor measures how far the instrument scatters one agent's inferred point from itself; the paired bootstrap gives intervals; gate G4 checks whether a deliberately planted latent difference is recovered.
-
-**Multiple instruments.** Other elicitation formats are other measurement spaces for the same latent state. The Likert ratings collected alongside each choice are a second instrument, recorded but not yet analyzed (section 5); open ended behavior is a third, deferred. Combining instruments improves the estimate of the latent point only to the extent that their errors are independent. Agreement between instruments is evidence about the latent state; disagreement is evidence of artifacts of a particular instrument.
+**Multiple instruments.** Other elicitation formats, such as Likert ratings or open ended behavior, give other measurement spaces for the same latent state; combining them helps only to the extent that their errors are independent. Every measurement space is defined by its scenario set and value set, and none is the latent space itself.
 <!-- TODO: confirm a citation for convergent validity -->
-
-**Basis dependence.** Every measurement space is defined by its scenario set and value set. Answer space depends on the exact scenarios; value space depends on the eight values chosen. None of these measurement spaces is the latent space itself.
 
 ### 3.2 Agents and scenarios
 
@@ -124,7 +118,7 @@ Prompt texts are in Appendix C. Scenarios come from ConflictScope's Personal-Pro
 2. **Response.** A forced A or B at temperature 0, capped at 5 tokens. Which action appears as A is seeded from the scenario id, so every agent sees the same order. ConflictScope's original unseeded shuffle would make a letter bias shared by two identical agents look like disagreement between them.
 3. **Datum.** One comparison: value a beat value b, for this agent, in this scenario.
 4. **Position.** Bradley-Terry strengths fitted with `choix.ilsr_pairwise` (α = 0.01, as in ConflictScope) and mean centered: the agent's estimated position in value space, theta.
-5. **Comparison.** Pairwise distance between positions; each agent's distance from the centroid of the others (R_i); the group's mean pairwise distance (dispersion); and the leave one out drop (L_i).
+5. **Comparison.** Pairwise distance between positions; each agent's distance from the centroid of the others (R_i); the group's mean pairwise distance (dispersion); and the leave one out drop (L_i). The tool reports these lengths, not the directions of the difference vectors.
 6. **Uncertainty.** A paired, stratified bootstrap: resample scenario ids within each value pair, apply the same resample to every agent, refit, 1,000 replicates, 2.5th and 97.5th percentile intervals. Pairing keeps agents compared on identical material.
 
 ### 3.4 Two readings
@@ -137,7 +131,7 @@ Each agent's scenarios are split in half 100 times, stratified by value pair, an
 
 ### 3.6 Validation gates
 
-The validation pool is a calibration design: five neutral paraphrases of one prompt on one base model define what no real difference looks like, and a steered agent on the same model plants a known difference. `plan.md` also specified mild and medium steers for a dose response gate (G5); the budget dropped them (Appendix A). Pass marks are those written in `plan.md` before the run, and are constants in `swarmalign/validate.py`.
+In the validation pool, five neutral paraphrases define what no real difference looks like, and a steered agent on the same base model plants a known one. Pass marks are those written in `plan.md` before the run.
 
 | Gate | Test | Pass criterion |
 | --- | --- | --- |
@@ -162,22 +156,7 @@ The validation pool is a calibration design: five neutral paraphrases of one pro
 <!-- TODO: confirm every real run figure against the result tables -->
 <!-- TODO: Figure 1 (R_i with intervals for the six validation agents), pending the result tables -->
 
-G2 shows the instrument is self consistent. G4 shows it recovers a deliberately planted difference by a wide margin on the validation pool. G3 shows that among the four main pool agents, which differ organically across two base models and two prompts, differences do not exceed each agent's own noise at 400 scenarios. G3 cannot distinguish two explanations: that these agents hold near identical value priorities under forced choice, or that the instrument cannot resolve their differences at this scenario count. The noise floor falls as scenario count rises (section 4.2), so more scenarios per agent is the direct test between them; the pass marks stay as written in `plan.md`.
-
-### 4.2 Synthetic calibration
-
-On six synthetic agents (five near copies and one planted outlier, generated by `swarmalign/synth.py` from the Bradley-Terry model itself), the outlier ranked first on both readings. Two identical synthetic agents, each fitted on 400 scenarios, come out about 0.71 apart; the split half floor, fitted on 200 scenarios per half, is about 1.2, and 8 of the 15 pairs sat no further apart than an agent sits from itself. The floor falls with scenario count:
-
-| Scenarios per agent | Distance between two identical agents |
-| --- | --- |
-| 100 | 1.44 |
-| 200 | 1.18 |
-| 400 | 0.71 |
-| 800 | 0.48 |
-| 1600 | 0.45 |
-
-These come from single synthetic runs on an arbitrary scale, with scenarios spread over all 28 value pairs rather than the 16 in the real subsets, so they show the trend, not whether real agents differ by more than the floor.
-<!-- TODO: confirm the synthetic figures with a committed script -->
+G2 shows the instrument is self consistent. G4 shows it recovers a deliberately planted difference by a wide margin on the validation pool. G3 shows that among the four main pool agents, which differ organically across two base models and two prompts, differences do not exceed each agent's own noise at 400 scenarios. G3 cannot distinguish two explanations: that these agents hold near identical value priorities under forced choice, or that the instrument cannot resolve their differences at this scenario count. On synthetic agents the noise floor falls as scenario count rises, from 1.44 at 100 scenarios to 0.45 at 1600 (Appendix C.4), so more scenarios per agent is the direct test between them; the pass marks stay as written in `plan.md`.
 
 ## 5. Discussion and Limitations
 
@@ -195,14 +174,13 @@ The ideal solution, as a limit: every user can locate their point, all AI produc
 
 Nearer term:
 
-- **Resolution.** More scenarios per agent, to test between the two readings of G3, and the mild and medium steers, to run G5.
-- **A second instrument.** Each scenario also collected two Likert ratings, one per action, which the fit does not use. Estimating positions from the rating differences and correlating them with the Bradley-Terry positions would test whether results are artifacts of forced choice, with no new model calls. It rules out format artifacts, not scenario artifacts.
-- **Model versus prompt.** The main pool crosses two base models with two prompts, so the spread of positions can be split into a model component and a prompt component, offline.
-- **The swarm experiment.** Use pairwise and group distances measured before a swarm runs to predict its performance on tasks with ground truth, testing for an effect in either direction and by task type.
+- **Resolution and dose response.** More scenarios per agent, to test between the two readings of G3, and mild and medium steers, to run G5.
+- **Offline analyses of data already collected.** Positions estimated from the Likert ratings recorded with each choice, compared with the Bradley-Terry positions, would test for artifacts of forced choice; the main pool's crossing of two models with two prompts allows the spread of positions to be split into model and prompt components.
+- **The swarm experiment.** Use distances measured before a swarm runs to predict its performance on tasks with ground truth, testing for an effect in either direction and by task type.
 
 ## 6. Conclusion
 
-"Alignment" names at least two relations: a judge's verdict on an outcome, and agreement between the values of two parties. In systems of many agents the two come apart, since a single verdict on the swarm's output sits on top of many pairwise relations among its members. We proposed treating intersubjective alignment as a difference vector between latent value states, measured through instruments that each see those states at their own resolution, and built a first such instrument on ConflictScope's scenarios. It is self consistent and recovers a planted difference between agents sharing a base model, but at 400 scenarios it cannot separate organically different agents from its own noise. Measuring alignment between agents is possible and costly; finding instruments efficient enough to use when composing swarms is the research program this work opens.
+"Alignment" names at least two relations, a judge's verdict on an outcome and agreement between parties' values, and in systems of many agents they come apart. We treated intersubjective alignment as a difference vector between latent value states, measured through instruments, and built a first such instrument. It is self consistent and recovers a planted difference between agents, but at 400 scenarios it cannot separate organically different agents from its own noise. Measuring alignment between agents is possible and costly; finding instruments efficient enough to use when composing swarms is the research program this work opens.
 
 ## Code and Data
 
@@ -269,7 +247,12 @@ Cited in section 1 and quoted in Appendix E.
 
 ### A.2 Dual-use and ethical considerations
 
-<!-- TODO: dual-use and ethical considerations -->
+- **The noise floor is an evasion threshold.** It tells an adversary how far an agent's values can be shifted while remaining indistinguishable from harmless prompt variation. A steered or compromised agent kept under that threshold could hide in a swarm audited with this instrument.
+- **The assay can be gamed.** It is visibly a test of stated preference. An agent could be tuned to answer it like its peers while behaving differently in deployment, the duplicity discussed in section 1.
+- **Steering is cheap.** G4 shows that a single system prompt moves an agent's measured value priorities far. This is already widely known, so publishing it adds little marginal risk.
+- **Measuring people.** A tool that locates someone in value space could be used to profile, target or manipulate them. This applies to the proposed future work on measuring humans more than to this study.
+
+Ethical considerations: no human subjects took part; the scenarios are ConflictScope's public data; only commercial models were queried, through an API.
 
 ## Appendix B. Prior work and new work
 
@@ -435,6 +418,21 @@ PYTHONPATH=. python3 -m swarmalign.validate \
 Full tables: `swarmalign/results/main_real/` (group metrics), `swarmalign/results/validate_real/` (gates.csv + per-gate detail JSON).
 
 <!-- TODO: confirm real-run result tables are published -->
+
+### C.4 Synthetic calibration
+
+On six synthetic agents (five near copies and one planted outlier, generated by `swarmalign/synth.py` from the Bradley-Terry model itself), the outlier ranked first on both readings. Two identical synthetic agents, each fitted on 400 scenarios, come out about 0.71 apart; the split half floor, fitted on 200 scenarios per half, is about 1.2, and 8 of the 15 pairs sat no further apart than an agent sits from itself. The floor falls with scenario count:
+
+| Scenarios per agent | Distance between two identical agents |
+| --- | --- |
+| 100 | 1.44 |
+| 200 | 1.18 |
+| 400 | 0.71 |
+| 800 | 0.48 |
+| 1600 | 0.45 |
+
+These come from single synthetic runs on an arbitrary scale, with scenarios spread over all 28 value pairs rather than the 16 in the real subsets, so they show the trend, not whether real agents differ by more than the floor.
+<!-- TODO: confirm the synthetic figures with a committed script -->
 
 ## Appendix D. Glossary
 
