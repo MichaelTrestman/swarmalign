@@ -1,7 +1,7 @@
 # SwarmAlign: A predictive measurement paradigm for intersubjective alignment
 
 
-Michael Trestman, Bernard Molyneux, Joshua Earlenbaugh, Mélon Joanès AFAGNIBO, Delina Ateshi, Nathan Bartley
+Michael Trestman, Bernard Molyneux, Joshua Earlenbaugh, Mélon Joanès AFAGNIBO, Delina Ateshim, Nathan Bartley
 
 With Apart Research
 
