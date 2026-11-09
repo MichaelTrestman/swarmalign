@@ -56,7 +56,7 @@ The framework proposed here provides a unifying measure for steerability and int
 
 One further point is that talk about alignment is rather incoherent because it fails to distinguish a model in a training context from an agent: a collection of software, data access, tools, and inference of one or more types. In most modern AI products, a given agent has access to more than one models, and often the code chooses which model to call. As well, most models are used in many different agent applications. Much research focuses on LLM models, with the agentic code layer that makes up much of the product abstracted away for convenience. Our approach is to focus on the agent as the unit of analysis, since it was actually behaves.
 
-If you can’t estimate a point in value space precisely and efficiently for an arbitrary individual, human or AI, how could you possibly know you’ve solved the alignment problem? These need to be expressed in the same framework. Before we can solve “the alignment problem for AI,” we need to be able to locate different agents in value space and measure the difference vector between them. You can approach it dynamically by loss minimizing, and that’s how you measure it.
+If you can’t estimate a point in value space precisely and efficiently for an arbitrary individual, human or AI, how could you possibly know you’ve solved the alignment problem? These need to be expressed in the same framework. Before we can solve “the alignment problem for AI,” we need to be able to locate different agents in value space and measure the difference between them.
 
 ### Contributions
 
