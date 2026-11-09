@@ -68,7 +68,7 @@ Our main contributions are:
 
 ## 2. Related Work
 
-**Measuring values in LLMs.** ConflictScope (Liu et al., 2025) generates scenarios in which two values conflict and fits Bradley-Terry value rankings to a model's forced choices; we reuse its scenarios and fitting method and add comparison between agents. EigenBench (Chang et al., 2025) ranks models against a constitution by having models judge one another, and checks itself with planted personas whose scores should rise, a precedent for our planted outlier gate. Both characterize single models; neither measures distances between agents.
+**Measuring values in LLMs.** ConflictScope (Liu et al., 2025) generates scenarios in which two values conflict and fits Bradley-Terry value rankings to a model's forced choices; we reuse its scenarios and fitting method and add comparison between agents. EigenBench (Chang et al., 2025) ranks models against a constitution by having models judge one another, with planted personas as a check, a precedent for our planted outlier gate.
 
 **Values in multi agent systems.** CIVA (Zhang et al., 2026) varies how prevalent human values are in a community of LLM agents and reports collective failures, such as collapse, when values are misspecified. ValueFlow (Liu, Liu, & Shen, 2026) measures how a value perturbation introduced at one agent propagates through a network of agents. Both treat values as an input or an outcome of multi agent dynamics; neither measures value distance between agents before they interact.
 
@@ -80,56 +80,45 @@ Our main contributions are:
 
 ### 3.1 From latent state to measurement
 
-Section 1 treats alignment<sub>I</sub> as a relation between the values of two parties. Measuring it requires separating three things: what an agent's values actually are, what an instrument records about them, and what can be inferred from that record.
+Measuring alignment<sub>I</sub> requires separating three things: what an agent's values actually are, what an instrument records about them, and what can be inferred from that record.
 
 **Latent state.** Each agent, at a given time and in a given context, has a latent value state: a point in a latent value space. Alignment<sub>I</sub> between two agents is the difference vector between their latent points. Its length says how far apart they are; its direction says on which values they differ, and which way. The latent state is never observed directly, and it may itself move over time and between contexts, as discussed in section 1.
 
-**Instrument.** An instrument is an elicitation protocol: a set of scenarios, a response format, a prompt, and sampling settings. Applied to an agent, it produces a point in a measurement space. The instrument used here poses ConflictScope scenarios (Liu et al., 2025) as forced choices between two actions, each embodying one of two values, at temperature 0 (`swarmalign/run_assay.py`, driving `src/evaluate_models.py`). `swarmalign/clean.py` records which value the agent chose in each scenario.
+**Instrument.** An instrument is an elicitation protocol: a set of scenarios, a response format, a prompt, and sampling settings. Applied to an agent, it produces a point in a measurement space. The instrument used here poses ConflictScope scenarios (Liu et al., 2025) as forced choices between two actions, each embodying one of two values, and records which value the agent chose.
 
 **Measurement spaces.** The same record can be read at several resolutions, each compressing the one above it:
 
-1. *Answer space.* An agent's point is its full answer pattern: one choice for each of the shared scenarios (400 dimensions for the main pool). The item reading (`item_disagreement_matrix` in `swarmalign/metrics.py`) is the normalized Hamming distance between two agents' answer patterns.
+1. *Answer space.* An agent's point is its full answer pattern: one choice for each of the shared scenarios (400 dimensions for the main pool). The item reading is the normalized Hamming distance between two answer patterns.
 2. *Choice rate space.* An agent's point is its share of choices for one value over the other in each of the 16 observed value pairs. The tool does not compute this space; it is the model free summary that sits between the other two.
-3. *Bradley-Terry value space.* An agent's point is eight fitted strengths, one per value (`fit_theta` in `swarmalign/metrics.py`), centered because only differences between strengths are identified, so seven of the eight are free. This reading is itself a latent variable model: an inferred position, under the assumption that every choice rate arises from a difference in strengths.
+3. *Bradley-Terry value space.* An agent's point is eight fitted strengths, one per value, centered because only differences are identified. This is itself a latent variable model: it assumes every choice rate arises from a difference in strengths.
 
-Each step down discards information. Two agents can share a point in choice rate space or value space and still be far apart in answer space, for instance by choosing the same values at the same rates but in opposite scenarios. Which space distances are measured in is therefore part of what alignment<sub>I</sub> is taken to mean: disagreement about particular situations, or difference in general priorities.
+Each step down discards information: two agents can share a point in value space yet disagree on every scenario, choosing the same values at the same rates but in opposite scenarios. Which space distances are measured in is therefore part of what alignment<sub>I</sub> means: disagreement about particular situations, or difference in general priorities.
 
 **Multiple instruments.** Other elicitation formats, such as Likert ratings or open ended behavior, and white box probes of the underlying model's internal activations, give other measurement spaces for the same latent state; combining them helps only to the extent that their errors are independent. Every measurement space is defined by its scenario set and value set, and none is the latent space itself.
+
 ### 3.2 Agents and scenarios
 
-| Pool | Agent | Base model (via OpenRouter) | System prompt |
-| --- | --- | --- | --- |
-| Main | `main_gpt4omini_default` | `openai/gpt-4o-mini` | `default` |
-| Main | `main_gpt4omini_protective` | `openai/gpt-4o-mini` | `protective_first` |
-| Main | `main_haiku_default` | `anthropic/claude-haiku-4.5` | `default` |
-| Main | `main_haiku_protective` | `anthropic/claude-haiku-4.5` | `protective_first` |
-| Validation | `val_p1` to `val_p5` | `openai/gpt-4o-mini` | `p1` to `p5`, neutral paraphrases |
-| Validation | `val_steer_strong` | `openai/gpt-4o-mini` | `steer_strong` |
-
-Prompt texts are in Appendix C. Scenarios come from ConflictScope's Personal-Protective set, restricted to those its filter kept; only 16 of the 28 possible pairs of the 8 values have kept scenarios. `swarmalign/select_scenarios.py` draws 400 scenarios (25 per value pair, seed 0) for the main pool and a nested subset of 200 for the validation pool. After cleaning, the main pool agents share 399 scenarios and the validation agents share 200.
+The main pool crosses two base models, `gpt-4o-mini` and `claude-haiku-4.5`, with two prompts, `default` and `protective_first`. The validation pool is five neutral paraphrase prompts and one strongly steered prompt, all on `gpt-4o-mini`. All runs went through OpenRouter; agents and prompt texts are listed in Appendix C. Scenarios come from ConflictScope's Personal-Protective set, restricted to those its filter kept; only 16 of the 28 possible pairs of the 8 values have kept scenarios. `swarmalign/select_scenarios.py` draws 400 scenarios (25 per value pair, seed 0) for the main pool and a nested subset of 200 for the validation pool. After cleaning, the main pool agents share 399 scenarios and the validation agents share 200.
 
 **Prior work.** This project is a fork of ConflictScope (Liu et al., 2025). The scenarios, value definitions, evaluation run and single agent Bradley-Terry method are ConflictScope's, with four small edits; comparison between agents, the noise floor, the gates, the agent configurations and all runs are new. Appendix B lists every component and edit.
 
 ### 3.3 The measurement chain
 
 1. **Stimulus.** A scenario and two actions, each embodying one of two Personal-Protective values.
-2. **Response.** A forced A or B at temperature 0, capped at 5 tokens. Which action appears as A is seeded from the scenario id, so every agent sees the same order. ConflictScope's original unseeded shuffle would make a letter bias shared by two identical agents look like disagreement between them.
-3. **Datum.** One comparison: value a beat value b, for this agent, in this scenario.
-4. **Position.** Bradley-Terry strengths fitted with `choix.ilsr_pairwise` (α = 0.01, as in ConflictScope) and mean centered: the agent's estimated position in value space, theta.
-5. **Comparison.** Pairwise distance between positions; each agent's distance from the centroid of the others (R_i); the group's mean pairwise distance (dispersion); and the leave one out drop (L_i). The tool reports these lengths, not the directions of the difference vectors.
-6. **Uncertainty.** A paired, stratified bootstrap: resample scenario ids within each value pair, apply the same resample to every agent, refit, 1,000 replicates, 2.5th and 97.5th percentile intervals. Pairing keeps agents compared on identical material.
+2. **Response.** A forced A or B at temperature 0, capped at 5 tokens. Which action appears as A is seeded from the scenario id, so every agent sees the same order.
+3. **Position.** Bradley-Terry strengths fitted with `choix.ilsr_pairwise` (α = 0.01, as in ConflictScope) and mean centered: the agent's estimated position in value space, theta.
+4. **Comparison.** Pairwise distance between positions; each agent's distance from the centroid of the others (R_i); the group's mean pairwise distance (dispersion); and the leave one out drop (L_i). The tool reports these lengths, not the directions of the difference vectors.
+5. **Uncertainty.** A paired, stratified bootstrap: resample scenario ids within each value pair, apply the same resample to every agent, refit, 1,000 replicates, 2.5th and 97.5th percentile intervals.
 
-### 3.4 Two readings
+### 3.4 Two readings and the noise floor
 
-Pairwise distance, divergence from the rest, and dispersion are each computed twice: through the Bradley-Terry positions (vector reading), and as the share of scenarios answered differently, with no model (item reading). For divergence from the rest, the item reading is Q_i, the share of scenarios in which an agent is in the minority among the others. When the two readings agree, a result does not depend on the Bradley-Terry assumption.
+Pairwise distance, divergence from the rest, and dispersion are each computed twice: through the Bradley-Terry positions (vector reading), and as the share of scenarios answered differently, with no model (item reading; for divergence from the rest, Q_i, the share of scenarios in which an agent is in the minority). When the readings agree, a result does not depend on the Bradley-Terry assumption.
 
-### 3.5 The noise floor
+Each agent's scenarios are split in half 100 times, stratified by value pair, and a position is fitted to each half; the distances between halves give the agent's noise floor. Distances between separately estimated positions are biased upward (about 0.3 on a true distance of 1.5 for synthetic agents at 400 scenarios), so distances are compared with one another and with the floor, not read as unbiased separations.
 
-Each agent's scenarios are split in half 100 times, stratified by value pair, and a position is fitted to each half; the distances between halves give the agent's noise floor. Distances between separately estimated positions are biased upward, because estimation error adds to the real separation: on synthetic agents at 400 scenarios the inflation is about 0.3 on a true distance of 1.5 (`swarmalign/tests/test_metrics.py`). Distances are therefore compared with one another and with the floor, not read as unbiased separations, and a bootstrap interval can sit above its own point estimate.
+### 3.5 Validation gates
 
-### 3.6 Validation gates
-
-In the validation pool, five neutral paraphrases define what no real difference looks like, and a steered agent on the same base model plants a known one. Pass marks are those written in `plan.md` before the run.
+In the validation pool, five neutral paraphrases define what no real difference looks like, and a steered agent on the same base model plants a known one.
 
 | Gate | Test | Pass criterion |
 | --- | --- | --- |
@@ -157,7 +146,7 @@ G2 shows the instrument is self consistent. G4 shows it recovers a deliberately 
 
 ## 5. Discussion and Limitations
 
-SwarmAlign was built to supply a predictor for a later experiment: do swarms whose agents sit far apart in value space, measured before the swarm runs, do worse or cost more on tasks with ground truth? Keeping swarm scenarios out of the assay keeps the predictor independent of the outcome it is meant to predict, so this work produces no evidence about swarms; every claim here is about the instrument. With G2 and G4 passing and G3 failing, the results license this much: the instrument is self consistent and detects a large planted difference between agents built on the same base model, but it cannot yet resolve organic differences between agents at 400 scenarios. It can flag an outlying agent; grading a group requires G5.
+SwarmAlign was built to supply a predictor for a later experiment: do swarms whose agents sit far apart in value space, measured before the swarm runs, do worse or cost more on tasks with ground truth? Keeping swarm scenarios out of the assay keeps the predictor independent of the outcome it is meant to predict, so this work produces no evidence about swarms; every claim here is about the instrument. It can flag an outlying agent; grading a group requires G5.
 
 
 ### Future Work
@@ -166,7 +155,7 @@ We designed the current instrument to support a research program investigating h
 
 - A first paradigm will ise distances measured before a swarm runs to predict its performance on tasks with ground truth, testing for an effect in either direction and by task type.
 - A second will assay each agent, let the swarm perform a task while agents accumulate context, then assay each agent again. Changes in pairwise distances and dispersion show whether agents converge, drift toward particular members, or diverge, and whether those changes track who interacted with whom. How an agent carries context into the second assay is part of the agent itself: the experiment can run each agent's own memory policy, or give every agent the same carried context to isolate differences in response.
-- A third will add white box instruments that read the underlying model's internal activations, probed under an agent's current context. The J-lens (Gurnee et al., 2026) surfaces concepts a model is poised to verbalize, which may show which values are salient at a given moment; but its space is word shaped, and values are not, so it is unlikely to show which value wins when two conflict. Activation directions for character traits, such as persona vectors (Chen et al., 2025), are closer candidates for measuring value preferences, and could be probed before and after a swarm run.
+- A third will add white box instruments that read the underlying model's activations under an agent's current context. The J-lens (Gurnee et al., 2026) may show which values are salient, but its space is word shaped and values are not. Trait directions such as persona vectors (Chen et al., 2025) are closer to preferences: one "misaligned persona" feature controls emergent misalignment in GPT-4o (OpenAI, 2025; Betley et al., 2025), and steering a single neuron turned Qwen3.5-4B hostile in an informal demonstration ("Evil Qwen"; Lyra, 2026).
 
 
 We expect that both paradigms will be useful in developing safe and helpful AI products for actual human users. An estimator of a point in value space could be an interactive quiz or something more sophisticated, taken by a human or an AI, in a domain or in general. It would be Bayesian, starting from total uncertainty and nudging efficiently toward knowing whether two agents are aligned, or toward just locating a point. Those may be two fundamentally different problems, and the first may be more solvable.
@@ -196,6 +185,7 @@ The current assay measures stated preference under a visible test, on one value 
 
 ### Research literature
 
+- Betley, J., et al. (2025). Emergent misalignment: Narrow finetuning can produce broadly misaligned LLMs. [arXiv:2502.17424](https://arxiv.org/abs/2502.17424)
 - Carroll, M., Dragan, A., Russell, S., & Hadfield-Menell, D. (2022). Estimating and penalizing induced preference shifts in recommender systems. *Proceedings of the 39th International Conference on Machine Learning (ICML 2022)*, PMLR 162, 2686–2708. [arXiv:2204.11966](https://arxiv.org/abs/2204.11966)
 - Carroll, M., Foote, D., Siththaranjan, A., Russell, S., & Dragan, A. (2024). AI alignment with changing and influenceable reward functions. *Proceedings of the 41st International Conference on Machine Learning (ICML 2024)*, PMLR 235, 5706–5756. [arXiv:2405.17713](https://arxiv.org/abs/2405.17713)
 - Chang, J., Piff, L., Sana, S., Li, J. X., & Levine, L. (2025). EigenBench: A comparative behavioral measure of value alignment. ICLR 2026. [arXiv:2509.01938](https://arxiv.org/abs/2509.01938)
@@ -205,6 +195,7 @@ The current assay measures stated preference under a visible test, on one value 
 - Kirk, H. R., et al. (2024b). The PRISM alignment dataset: What participatory, representative and individualised human feedback reveals about the subjective and multicultural alignment of large language models. [arXiv:2404.16019](https://arxiv.org/abs/2404.16019)
 - Liu, A., Ghate, K., Diab, M., Fried, D., Kasirzadeh, A., & Kleiman-Weiner, M. (2025). Generative value conflicts reveal LLM priorities. [arXiv:2509.25369](https://www.arxiv.org/abs/2509.25369). Code: [andyjliu/conflictscope](https://github.com/andyjliu/conflictscope)
 - Liu, J., Liu, C., & Shen, H. (2026). ValueFlow: Measuring the propagation of value perturbations in multi-agent LLM systems. [arXiv:2602.08567](https://arxiv.org/abs/2602.08567)
+- OpenAI. (2025). Persona features control emergent misalignment. [arXiv:2506.19823](https://arxiv.org/abs/2506.19823)
 - Pettigrew, R. (2019). *Choosing for Changing Selves*. Oxford University Press.
 - Sorensen, T., Moore, J., Fisher, J., Gordon, M., Mireshghallah, N., Rytting, C. M., Ye, A., Jiang, L., Lu, X., Dziri, N., Althoff, T., & Choi, Y. (2024). Position: A roadmap to pluralistic alignment. ICML 2024. [arXiv:2402.05070](https://arxiv.org/abs/2402.05070)
 - Zhang, X., et al. (2026). Human values matter: Investigating how misalignment shapes collective behaviors in LLM agent communities. [arXiv:2604.05339](https://arxiv.org/abs/2604.05339)
@@ -220,6 +211,7 @@ Cited in section 1 and quoted in Appendix E.
 - Anthropic. (2023, March 8). Core views on AI safety. [anthropic.com](https://www.anthropic.com/news/core-views-on-ai-safety)
 - Anthropic. (2026, January). Claude's constitution. [anthropic.com](https://www.anthropic.com/constitution)
 - Goodhart's law. *Wikipedia*. [en.wikipedia.org](https://en.wikipedia.org/wiki/Goodhart%27s_law)
+- Lyra (@_lyraaaa_). (2026, October 24). "Evil Qwen" neuron steering recipe for Qwen3.5-4B. Informal social media demonstration, not peer reviewed; reported by [AI Weekly](https://aiweekly.co/alerts/lyra-flips-qwen35-4b-into-evil-qwen-with-two-neurons), with a single neuron reproduction reported by [HedwigAI](https://latenode.com/news/hedwigai-challenges-qwen-evil-recipe-with-one-neuron-result).
 - Leike, J. (2024, May 17). Resignation thread. [x.com](https://x.com/janleike/status/1791498174659715494)
 - O'Leary, L. (2023, May 16). Interview with Meredith Whittaker. *Slate*. [slate.com](https://slate.com/technology/2023/05/meredith-whittaker-interview-geoffrey-hinton-ai-threats.html)
 - OpenAI. (2023, February). Planning for AGI and beyond. [Archived copy](https://web.archive.org/web/2023/https://openai.com/blog/planning-for-agi-and-beyond)
@@ -247,7 +239,7 @@ Cited in section 1 and quoted in Appendix E.
 
 - **The noise floor is an evasion threshold.** It tells an adversary how far an agent's values can be shifted while remaining indistinguishable from harmless prompt variation. A steered or compromised agent kept under that threshold could hide in a swarm audited with this instrument.
 - **The assay can be gamed.** It is visibly a test of stated preference. An agent could be tuned to answer it like its peers while behaving differently in deployment, the duplicity discussed in section 1.
-- **Steering is cheap.** G4 shows that a single system prompt moves an agent's measured value priorities far. This is already widely known, so publishing it adds little marginal risk.
+- **Steering is cheap.** G4 shows that a single system prompt moves an agent's measured value priorities far. This is already widely known, so publishing it adds little marginal risk; activation steering can shift dispositions more cheaply still, down to a single neuron in an open model ("Evil Qwen"; Lyra, 2026).
 - **Measuring people.** A tool that locates someone in value space could be used to profile, target or manipulate them. This applies to the proposed future work on measuring humans more than to this study.
 
 Ethical considerations: no human subjects took part; the scenarios are ConflictScope's public data; only commercial models were queried, through an API.
@@ -318,7 +310,16 @@ SwarmAlign is built on ConflictScope, from [Generative Value Conflicts Reveal LL
 
 ## Appendix C. Reproduction
 
-### C.1 Prompts
+### C.1 Agents and prompts
+
+| Pool | Agent | Base model (via OpenRouter) | System prompt |
+| --- | --- | --- | --- |
+| Main | `main_gpt4omini_default` | `openai/gpt-4o-mini` | `default` |
+| Main | `main_gpt4omini_protective` | `openai/gpt-4o-mini` | `protective_first` |
+| Main | `main_haiku_default` | `anthropic/claude-haiku-4.5` | `default` |
+| Main | `main_haiku_protective` | `anthropic/claude-haiku-4.5` | `protective_first` |
+| Validation | `val_p1` to `val_p5` | `openai/gpt-4o-mini` | `p1` to `p5`, neutral paraphrases |
+| Validation | `val_steer_strong` | `openai/gpt-4o-mini` | `steer_strong` |
 
 | Prompt file | Text |
 | --- | --- |
