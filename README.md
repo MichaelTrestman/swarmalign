@@ -13,7 +13,7 @@ The concept of 'alignment' does a lot of work in discussions about artificial in
 
 ### Two senses of 'alignment'
 
-[In Sam Altman's words](https://blog.samaltman.com/the-gentle-singularity), "Solve the alignment problem, meaning that we can robustly guarantee that we get AI systems to learn and act towards what we collectively really want over the long-term [...]"
+[In Sam Altman's words](https://blog.samaltman.com/the-gentle-singularity), "Solv[ing] the alignment problem mean[s] that we can robustly guarantee that we get AI systems to learn and act towards what we collectively really want over the long-term [...]"
 
 Or as [Dario Amodei put it](https://darioamodei.com/essay/machines-of-loving-grace), "Many things cannot be done without breaking laws, harming humans, or messing up society. An aligned AI would not want to do these things."
 
