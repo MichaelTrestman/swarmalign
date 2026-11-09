@@ -177,10 +177,6 @@ The current assay measures stated preference under a visible test, on one value 
 - Scenarios and value definitions: ConflictScope (Liu et al., 2025), [github.com/andyjliu/conflictscope](https://github.com/andyjliu/conflictscope). The scenario subsets used here are committed in `swarmalign/`.
 - Real run result tables: not available at submission (see section 4.1).
 
-## Author Contributions
-
-<!-- TODO: author contributions -->
-
 ## References
 
 ### Research literature
