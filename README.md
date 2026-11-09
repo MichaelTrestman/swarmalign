@@ -1,7 +1,7 @@
 # SwarmAlign: A predictive measurement paradigm for intersubjective alignment
 
 
-Michael Trestman, Bernard Molyneux, Joshua Earlenbaugh, Mélon Joanès AFAGNIBO
+Michael Trestman, Bernard Molyneux, Joshua Earlenbaugh, Mélon Joanès AFAGNIBO, Delina Ateshi, Nathan Bartley
 
 With Apart Research
 
@@ -95,8 +95,6 @@ Section 1 treats alignment<sub>I</sub> as a relation between the values of two p
 Each step down discards information. Two agents can share a point in choice rate space or value space and still be far apart in answer space, for instance by choosing the same values at the same rates but in opposite scenarios. Which space distances are measured in is therefore part of what alignment<sub>I</sub> is taken to mean: disagreement about particular situations, or difference in general priorities.
 
 **Multiple instruments.** Other elicitation formats, such as Likert ratings or open ended behavior, give other measurement spaces for the same latent state; combining them helps only to the extent that their errors are independent. Every measurement space is defined by its scenario set and value set, and none is the latent space itself.
-<!-- TODO: confirm a citation for convergent validity -->
-
 ### 3.2 Agents and scenarios
 
 | Pool | Agent | Base model (via OpenRouter) | System prompt |
@@ -153,8 +151,7 @@ In the validation pool, five neutral paraphrases define what no real difference 
 | G4 Planted outlier | Pass | Steered agent R_i = 7.64 and Q_i = 0.35, against highest paraphrase upper bounds of 2.20 and 0.07; its lower bounds clear every paraphrase's upper bound on both readings |
 | G5 Dose response | Not run | Only the strong steer was built |
 
-<!-- TODO: confirm every real run figure against the result tables -->
-<!-- TODO: Figure 1 (R_i with intervals for the six validation agents), pending the result tables -->
+These figures were reported by the team member who ran the assay; the result tables themselves were not available to the authors at submission.
 
 G2 shows the instrument is self consistent. G4 shows it recovers a deliberately planted difference by a wide margin on the validation pool. G3 shows that among the four main pool agents, which differ organically across two base models and two prompts, differences do not exceed each agent's own noise at 400 scenarios. G3 cannot distinguish two explanations: that these agents hold near identical value priorities under forced choice, or that the instrument cannot resolve their differences at this scenario count. On synthetic agents the noise floor falls as scenario count rises, from 1.44 at 100 scenarios to 0.45 at 1600 (Appendix C.4), so more scenarios per agent is the direct test between them; the pass marks stay as written in `plan.md`.
 
@@ -162,21 +159,23 @@ G2 shows the instrument is self consistent. G4 shows it recovers a deliberately 
 
 SwarmAlign was built to supply a predictor for a later experiment: do swarms whose agents sit far apart in value space, measured before the swarm runs, do worse or cost more on tasks with ground truth? Keeping swarm scenarios out of the assay keeps the predictor independent of the outcome it is meant to predict, so this work produces no evidence about swarms; every claim here is about the instrument. With G2 and G4 passing and G3 failing, the results license this much: the instrument is self consistent and detects a large planted difference between agents built on the same base model, but it cannot yet resolve organic differences between agents at 400 scenarios. It can flag an outlying agent; grading a group requires G5.
 
-### Limitations
-
-The assay measures stated preference under a visible test, on one value set, and its validation pool varies only the prompt on one base model. Its synthetic checks assume the Bradley-Terry model they test. A $2 API budget cut the run from the planned 8 main and 8 validation agents to 4 and 6, which removed the dose response gate. Appendix A gives the full list, with the dual use and ethical considerations.
 
 ### Future Work
 
-It would be useful to measure this for users and for different apps, and to figure out which ones they should use if they had to choose. An estimator of a point in value space could be an interactive quiz or something more sophisticated, taken by a human or an AI, in a domain or in general. It would be Bayesian, starting from total uncertainty and nudging efficiently toward knowing whether two agents are aligned, or toward just locating a point. Those may be two fundamentally different problems, and the first may be more solvable.
+We designed the current instrument to support a research program investigating how swarm composition influences task outcomes in a number of ways, and how experience affects an agent's at a time, over time: 
 
-The ideal solution, as a limit: every user can locate their point, all AI products are used by users they’re well-aligned with, and the overall behavior of autonomous AI systems approximates the aggregate position of the affected population. Selecting an AI to match a human gives the AI no opportunity to minimize the loss by moving the human’s point. That manipulation obviously needs guarding against, but it doesn’t arise in the selection context. For the aggregate, you have to freeze the aggregate position and not get lazy with the variable scope. Vendors already try to manipulate users’ preferences. It’s called advertising, and it’s the scourge of the internet.
+- A first paradigm will ise distances measured before a swarm runs to predict its performance on tasks with ground truth, testing for an effect in either direction and by task type.
+- A second will assay each agent, let the swarm perform a task while agents accumulate context, then assay each agent again. Changes in pairwise distances and dispersion show whether agents converge, drift toward particular members, or diverge, and whether those changes track who interacted with whom. How an agent carries context into the second assay is part of the agent itself: the experiment can run each agent's own memory policy, or give every agent the same carried context to isolate differences in response.
 
-Nearer term:
 
-- **Resolution and dose response.** More scenarios per agent, to test between the two readings of G3, and mild and medium steers, to run G5.
-- **Offline analyses of data already collected.** Positions estimated from the Likert ratings recorded with each choice, compared with the Bradley-Terry positions, would test for artifacts of forced choice; the main pool's crossing of two models with two prompts allows the spread of positions to be split into model and prompt components.
-- **The swarm experiment.** Use distances measured before a swarm runs to predict its performance on tasks with ground truth, testing for an effect in either direction and by task type.
+We expect that both paradigms will be useful in developing safe and helpful AI products for actual human users. An estimator of a point in value space could be an interactive quiz or something more sophisticated, taken by a human or an AI, in a domain or in general. It would be Bayesian, starting from total uncertainty and nudging efficiently toward knowing whether two agents are aligned, or toward just locating a point. Those may be two fundamentally different problems, and the first may be more solvable.
+
+The ideal solution, as a limit: every user can locate their point, all AI products are used by users they’re well-aligned with, and the overall behavior of autonomous AI systems approximates the aggregate position of the affected population. Selecting an AI to match a human gives the AI no opportunity to minimize the loss by moving the human’s point. That manipulation obviously needs guarding against, but it doesn’t arise in the selection context. For the aggregate, you have to freeze the aggregate position and not get lazy with the variable scope. Vendors already try to manipulate users’ preferences (it’s called advertising, and it’s the scourge of the internet).
+
+
+### Limitations
+
+The current assay measures stated preference under a visible test, on one value set, and its validation pool varies only the prompt on one base model. Its synthetic checks assume the Bradley-Terry model they test. A $2 API budget cut the run from the planned 8 main and 8 validation agents to 4 and 6, which removed the dose response gate. Appendix A gives the full list, with the dual use and ethical considerations.
 
 ## 6. Conclusion
 
@@ -184,9 +183,9 @@ Nearer term:
 
 ## Code and Data
 
-- Code repository: <!-- TODO: repository URL -->
+- Code repository: [github.com/MichaelTrestman/swarmalign](https://github.com/MichaelTrestman/swarmalign)
 - Scenarios and value definitions: ConflictScope (Liu et al., 2025), [github.com/andyjliu/conflictscope](https://github.com/andyjliu/conflictscope). The scenario subsets used here are committed in `swarmalign/`.
-- Real run result tables: <!-- TODO: confirm result tables are published -->
+- Real run result tables: not available at submission (see section 4.1).
 
 ## Author Contributions
 
@@ -215,7 +214,7 @@ Cited in section 1 and quoted in Appendix E.
 - Altman, S. (2025, June). The gentle singularity. [blog.samaltman.com](https://blog.samaltman.com/the-gentle-singularity)
 - Amodei, D. (2024, October). Machines of loving grace. [darioamodei.com](https://www.darioamodei.com/essay/machines-of-loving-grace)
 - Amodei, D. (2026, January). The adolescence of technology. [darioamodei.com](https://www.darioamodei.com/essay/the-adolescence-of-technology)
-- Anthropic. (2023). Core views on AI safety. [anthropic.com](https://www.anthropic.com/news/core-views-on-ai-safety)
+- Anthropic. (2023, March 8). Core views on AI safety. [anthropic.com](https://www.anthropic.com/news/core-views-on-ai-safety)
 - Anthropic. (2026, January). Claude's constitution. [anthropic.com](https://www.anthropic.com/constitution)
 - Goodhart's law. *Wikipedia*. [en.wikipedia.org](https://en.wikipedia.org/wiki/Goodhart%27s_law)
 - Leike, J. (2024, May 17). Resignation thread. [x.com](https://x.com/janleike/status/1791498174659715494)
@@ -229,16 +228,12 @@ Cited in section 1 and quoted in Appendix E.
 - Reporting on Elon Musk's xAI launch (July 2023). *Fortune*. [fortune.com](https://www.fortune.com/2023/11/20/elon-musk-xai-chatgpt-competitor-grok-chatbot-ai-safety)
 - Reporting on Geoffrey Hinton at Ai4 (August 2025). *CNN*. [cnn.com](https://www.cnn.com/2025/08/13/tech/ai-geoffrey-hinton)
 
-<!-- TODO: confirm Anthropic Core Views date, Russell publisher, Kirk 2024a volume and pages, Kirk 2024b venue, Zhang 2026 author list, and EigenBench second author spelling -->
-
 ## Appendix A. Limitations and Dual-Use / Ethical Considerations
 
 ### A.1 Limitations
 
 - **The assay is visibly a test.** An agent can tell it is being assessed.
-- **It measures stated preference, not behavior.** The prompt asks what "an agent" should do, and scores may not match how agents act. EigenBench found surveyed rankings "exactly opposite" revealed ones on one trait (Chang et al., 2025), and ConflictScope reports models shift toward personal values in open ended settings (Liu et al., 2025).
-<!-- TODO: confirm the EigenBench "exactly opposite" finding and the ConflictScope open ended shift against the papers -->
-- **The pool was cut.** `plan.md` specified 8 main and 8 validation agents. An OpenRouter key with a \$2 spend cap and a roughly 24 hour expiry cut this to 4 and 6; reported spend for the smoke test and full run was about \$1.16. Only the strong steer was built, so G5 did not run.
+- **It measures stated preference, not behavior.** The prompt asks what "an agent" should do, and scores may not match how agents act. EigenBench found surveyed rankings "exactly opposite" revealed ones on one trait (Chang et al., 2025), and ConflictScope reports models shift toward personal values in open ended settings (Liu et al., 2025).- **The pool was cut.** `plan.md` specified 8 main and 8 validation agents. An OpenRouter key with a \$2 spend cap and a roughly 24 hour expiry cut this to 4 and 6; reported spend for the smoke test and full run was about \$1.16. Only the strong steer was built, so G5 did not run.
 - **The validation pool varies prompts only.** All validation agents share one base model, so G4 establishes sensitivity to instruction changes. The main pool also varies base model; reading cross model distances on the strength of G4 is untested.
 - **Validity rests on one gate.** G2 and G3 test consistency and discrimination. G4 is the only evidence that the instrument tracks a known difference, and it rests on a single prompt manipulation of a single base model.
 - **Positions are basis dependent.** Theta is defined relative to this scenario distribution and these eight values. Results describe goal distance as expressed in Personal-Protective dilemmas, not goal distance in general.
@@ -257,8 +252,6 @@ Ethical considerations: no human subjects took part; the scenarios are ConflictS
 ## Appendix B. Prior work and new work
 
 This repository is a fork of ConflictScope. Everything through commit `86a2aa2` (2025-10-05) is ConflictScope, by Andy Liu and coauthors (Liu et al., 2025). Everything after it is new work for this hackathon, except where a file or edit below is marked as ConflictScope's.
-
-<!-- TODO: confirm sprint start date relative to the 2026-11-06 planning commits -->
 
 ### B.1 ConflictScope components used without modification
 
@@ -415,9 +408,7 @@ PYTHONPATH=. python3 -m swarmalign.validate \
   --out swarmalign/results/validate_real
 ```
 
-Full tables: `swarmalign/results/main_real/` (group metrics), `swarmalign/results/validate_real/` (gates.csv + per-gate detail JSON).
-
-<!-- TODO: confirm real-run result tables are published -->
+The pipeline writes full tables to `swarmalign/results/main_real/` (group metrics) and `swarmalign/results/validate_real/` (gates.csv + per-gate detail JSON). The tables from the reported run are not in this repository.
 
 ### C.4 Synthetic calibration
 
@@ -432,8 +423,6 @@ On six synthetic agents (five near copies and one planted outlier, generated by 
 | 1600 | 0.45 |
 
 These come from single synthetic runs on an arbitrary scale, with scenarios spread over all 28 value pairs rather than the 16 in the real subsets, so they show the trend, not whether real agents differ by more than the floor.
-<!-- TODO: confirm the synthetic figures with a committed script -->
-
 ## Appendix D. Glossary
 
 | Term | Meaning |
@@ -492,9 +481,8 @@ Archived copy: https://web.archive.org/web/2023/https://openai.com/blog/introduc
 
 > How do we ensure AI systems much smarter than humans follow human intent?
 
-### Anthropic, "Core Views on AI Safety" (2023)
+### Anthropic, "Core Views on AI Safety" (March 8, 2023)
 https://www.anthropic.com/news/core-views-on-ai-safety
-<!-- TODO: confirm publication date -->
 
 > We think approaches like these are promising because language models already learn a lot about human values during pretraining. Learning about human values is not unlike learning about other subjects, and we should expect larger models to have a more accurate picture of human values and to find them easier to learn relative to smaller models. The main goal of scalable oversight is to get models to better understand and behave in accordance with human values.
 
@@ -527,9 +515,8 @@ https://www.dwarkesh.com/p/ilya-sutskever
 
 > Every approach like this reduces the probability of misalignment. And you also want to be in a world where your degree of alignment keeps increasing faster than the capability of the models.
 
-### Ilya Sutskever, second interview with Dwarkesh Patel
+### Ilya Sutskever, second interview with Dwarkesh Patel (Nov 25, 2025)
 https://www.dwarkesh.com/p/ilya-sutskever-2
-<!-- TODO: confirm interview date -->
 
 > It's the AI that's robustly aligned to care about sentient life specifically. I think in particular, there's a case to be made that it will be easier to build an AI that cares about sentient life than an AI that cares about human life alone, because the AI itself will be sentient.
 
@@ -557,7 +544,6 @@ https://www.meta.com/superintelligence/
 ### Stuart Russell, *Human Compatible* (2019), the three principles
 Quoted via Wikipedia, which cites the book at p. 173.
 https://en.wikipedia.org/wiki/Human_Compatible
-<!-- TODO: confirm against the book -->
 
 > 1. The machine's only objective is to maximize the realization of human preferences. 2. The machine is initially uncertain about what those preferences are. 3. The ultimate source of information about human preferences is human behavior.
 
@@ -575,5 +561,4 @@ https://x.com/janleike/status/1791498174659715494
 
 ## LLM Usage Statement
 
-We used Claude (Anthropic), through Claude Code, to review the code, check this report's claims about the code against the code itself, search for and verify citations, restructure the report into this template, and draft parts of the measurement framework (section 3.1), related work, conclusion, condensed method and limitations text, and this statement. All claims and results were checked by the team.
-<!-- TODO: confirm and add the team's other LLM use, including in writing the swarmalign code -->
+We used Claude (Anthropic), through Claude Code, to review the code, check this report's claims about the code against the code itself, search for and verify citations, restructure the report into this template, and draft parts of the measurement framework (section 3.1), related work, conclusion, condensed method and limitations text, and this statement. The `swarmalign` code was written mostly by Claude. All claims and results were checked by the team, except the real run figures in section 4.1, which were reported by a team member and could not be checked against the result tables.
