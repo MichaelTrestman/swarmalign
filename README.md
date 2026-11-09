@@ -31,7 +31,7 @@ In another sense, 'alignment' means agreement. If Alice and Bob are both craving
 
 Here the AI is seen not just as a product but as a coordinating partner, and alignment is about shared goals and values between two parties, not one's judgment of another.
 
-How are the two senses related? We might assume that they are closely tied together (or 'aligned'), but they can come apart. For example, I am, by definition, always perfectly aligned with myself (at least, at a given point in time). But that does *not* imply that I would rate my performance highly on a given task (even if I could do it instantaneously). A professional chef with different taste could surely prepare a better meal for me than I could for myself.
+How are the two senses related? We might assume that they are closely tied together, but they can come apart. For example, I am, by definition, always perfectly aligned with myself (at least, at a given point in time). But that does *not* imply that I would rate my performance highly on a given task (even if I could do it instantaneously). A professional chef with different taste could surely prepare a better meal for me than I could for myself.
 
 However, there is obviously an important relationship between 1) two parties' agreement on at least some values and 2) whether one of the parties can do something to make the other one happy. If two parties are completely at odds, if the most important goal of each party is logically incompatible with that of the other, then it is unlikely that what either does will please the other, and they will be unlikely to cooperate productively.
 
